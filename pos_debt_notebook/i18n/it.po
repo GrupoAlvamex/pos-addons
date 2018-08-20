@@ -3,19 +3,19 @@
 # * pos_debt_notebook
 # 
 # Translators:
-# Translation Bot <i18n-bot@it-projects.info>, 2018
+# Sergio Zanchetta <primes2h@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 11.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-21 00:08+0000\n"
-"PO-Revision-Date: 2018-04-21 00:08+0000\n"
-"Last-Translator: Translation Bot <i18n-bot@it-projects.info>, 2018\n"
-"Language-Team: German (https://www.transifex.com/it-projects-llc/teams/76080/de/)\n"
+"POT-Creation-Date: 2018-04-27 23:55+0000\n"
+"PO-Revision-Date: 2018-04-27 23:55+0000\n"
+"Last-Translator: Sergio Zanchetta <primes2h@gmail.com>, 2018\n"
+"Language-Team: Italian (https://www.transifex.com/it-projects-llc/teams/76080/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: de\n"
+"Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: pos_debt_notebook
@@ -23,7 +23,7 @@ msgstr ""
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:117
 #, python-format
 msgid "* Some fields are editable only for POS managers."
-msgstr "* Einige Felder können nur durch den POS-Manager editiert werden."
+msgstr "* Alcuni campi sono modificabili solo dai responsabili POS."
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -34,14 +34,14 @@ msgid ""
 "laptops, or industrial hardware.</p><p>Once the session launched, the system"
 " continues to run without an internet connection.</p>"
 msgstr ""
-"<p>Anklicken, um das POS-System zu starten. Es <b>läuft auf Tablets</b>, "
-"Laptops, oder industrieller Hardware.</p><p>Sobald eine Sitzung gestartet "
-"wurde, funktioniert das System auch ohne Internet-Verbindung.</p>"
+"<p>Fare clic per avviare l'interfaccia del punto vendita. <b>Funziona su "
+"tablet</b>, portatili o hardware industriale.</p><p>Dopo l'avvio della "
+"sessione, il sistema funziona anche senza connessione Internet.</p>"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_amount
 msgid "Amount"
-msgstr "Betrag"
+msgstr "Importo"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -49,24 +49,24 @@ msgstr "Betrag"
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_balance
 #, python-format
 msgid "Balance"
-msgstr "Saldo"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_balance
 #: selection:pos.credit.update,update_type:0
 msgid "Balance Update"
-msgstr "Saldoaktualisierung"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_invoices_form
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_form
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "Annulla"
 
 #. module: pos_debt_notebook
 #: selection:pos.credit.update,state:0
 msgid "Canceled"
-msgstr "Abgebrochen"
+msgstr "Annullato"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_pos_credit_update_balance
@@ -74,70 +74,67 @@ msgid ""
 "Change of balance. Negative value for purchases without money (debt). "
 "Positive for credit payments (prepament or payments for debts)."
 msgstr ""
-"Saldoänderung. Negative Beträge für Einkäufe ohne Bezahlung (Schulden). "
-"Positive Beträge für Vorauszahlungen oder Schuldentilgungen)."
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_pos_credit_invoices_line_is_company
 msgid "Check if the contact is a company, otherwise it is a person"
 msgstr ""
-"Prüfen, ob der Kontakt ein Unternehmen ist, anderenfalls ist es eine Person"
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/js/test_pos_debt.js:43
 #, python-format
 msgid "Click the customer"
-msgstr ""
+msgstr "Fare clic sul cliente"
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/js/test_pos_debt.js:61
 #, python-format
 msgid "Click the payment method"
-msgstr ""
+msgstr "Fare clic sul metodo di pagamento"
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Closed"
-msgstr "Geschlossen"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_partner_id
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_company_id
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_company_id
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Azienda"
 
 #. module: pos_debt_notebook
 #: model:ir.actions.server,name:pos_debt_notebook.server_action_pos_credit_update
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_form
 msgid "Confirm"
-msgstr ""
+msgstr "Conferma"
 
 #. module: pos_debt_notebook
 #: selection:pos.credit.update,state:0
 msgid "Confirmed"
-msgstr "Bestätigt"
+msgstr "Confermato"
 
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_res_partner
 msgid "Contact"
-msgstr ""
+msgstr "Contatto"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_create_uid
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_create_uid
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_create_uid
 msgid "Created by"
-msgstr "Erstellt durch"
+msgstr "Creato da"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_create_date
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_create_date
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_create_date
 msgid "Created on"
-msgstr "Erstellt am"
+msgstr "Creata il"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -147,7 +144,7 @@ msgstr "Erstellt am"
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_res_users_credit_balance
 #, python-format
 msgid "Credit"
-msgstr "Guthaben"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_product_id
@@ -155,49 +152,49 @@ msgstr "Guthaben"
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_product_template_credit_product
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_credit_product
 msgid "Credit Product"
-msgstr "Guthabenprodukt"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_pos_credit_invoices_credit_balance_company
 #: model:ir.model.fields,help:pos_debt_notebook.field_res_partner_credit_balance_company
 #: model:ir.model.fields,help:pos_debt_notebook.field_res_users_credit_balance_company
 msgid "Credit balance of this company (including its contacts)"
-msgstr "Guthabensaldo dieses Unternehmens (inklusive seiner Kontakte)"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_pos_credit_invoices_line_credit_balance
 #: model:ir.model.fields,help:pos_debt_notebook.field_res_partner_credit_balance
 #: model:ir.model.fields,help:pos_debt_notebook.field_res_users_credit_balance
 msgid "Credit balance of this partner only."
-msgstr "Guthabensaldo nur für diesen Partner."
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.res_partner_kanban_view
 msgid "Credit:"
-msgstr "Guthaben:"
+msgstr ""
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:85
 #, python-format
 msgid "Credits Spent (Out)"
-msgstr "Gewährte Guthaben (Ausgang)"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_amount
 msgid "Credits to add"
-msgstr "Zu addierende Guthaben"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_currency_id
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_currency_id
 msgid "Currency"
-msgstr "Währung"
+msgstr "Valuta"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_credit_balance
 msgid "Current Credits"
-msgstr "Aktuelle Guthaben"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: selection:pos.credit.invoices,payment_type:0
@@ -211,7 +208,7 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 #, python-format
 msgid "Customer"
-msgstr "Kunde"
+msgstr "Cliente"
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.res_config_settings_view_form
@@ -222,20 +219,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_date
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_date
 msgid "Date"
-msgstr "Datum"
+msgstr "Data"
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:81
 #, python-format
 msgid "Date/Time"
-msgstr "Datum/Zeit"
+msgstr "Data/Ora"
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Day"
-msgstr "Tag"
+msgstr "Giorno"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -280,12 +277,12 @@ msgstr ""
 #: model:ir.actions.act_window,name:pos_debt_notebook.action_report_pos_debt_all
 #: model:ir.ui.menu,name:pos_debt_notebook.menu_report_pos_debt_all
 msgid "Debts / Credits"
-msgstr "Schulden/Guthaben"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_pivot
 msgid "Debts / Credits Analysis"
-msgstr "Schulden/Guthaben-Analyse"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_res_config_settings_debt_limit
@@ -300,7 +297,7 @@ msgstr ""
 #. module: pos_debt_notebook
 #: selection:res.config.settings,debt_type:0 selection:res.partner,debt_type:0
 msgid "Display Credit"
-msgstr "Guthaben anzeigen"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: selection:res.config.settings,debt_type:0 selection:res.partner,debt_type:0
@@ -313,20 +310,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_display_name
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_display_name
 msgid "Display Name"
-msgstr "Anzeigename"
+msgstr "Nome schermo"
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/js/pos.js:283
 #, python-format
 msgid "Don't forget to specify Customer when sell Credits."
-msgstr "Bitte Kunde angeben beim Verkauf von Guthaben"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_form
 #: selection:pos.credit.update,state:0
 msgid "Draft"
-msgstr "Entwurf"
+msgstr "Bozza"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_config_debt_dummy_product_id
@@ -346,7 +343,7 @@ msgstr ""
 #: code:addons/pos_debt_notebook/static/src/js/pos.js:289
 #, python-format
 msgid "Empty Order"
-msgstr ""
+msgstr "Ordine vuoto"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -358,13 +355,13 @@ msgstr ""
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_invoices_form
 msgid "Generate"
-msgstr ""
+msgstr "Genera"
 
 #. module: pos_debt_notebook
 #: model:ir.actions.act_window,name:pos_debt_notebook.action_pos_credit_invoices
 #: model:ir.ui.menu,name:pos_debt_notebook.menu_pos_credit_invoices
 msgid "Generate POS Credits Invoices"
-msgstr "POS-Gutschriften erzeugen"
+msgstr ""
 
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_pos_credit_invoices
@@ -375,13 +372,13 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Group By"
-msgstr "Gruppieren nach"
+msgstr "Raggruppare per"
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Hour"
-msgstr ""
+msgstr "Ora"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_id
@@ -399,7 +396,7 @@ msgstr ""
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_invoice_id
 msgid "Invoice"
-msgstr ""
+msgstr "Fattura"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_is_company
@@ -409,7 +406,7 @@ msgstr ""
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_account_journal
 msgid "Journal"
-msgstr ""
+msgstr "Registro"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices___last_update
@@ -417,26 +414,26 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update___last_update
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt___last_update
 msgid "Last Modified on"
-msgstr "Zuletzt geändert am"
+msgstr "Ultima modifica il"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_write_uid
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_write_uid
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_write_uid
 msgid "Last Updated by"
-msgstr "Zuletzt aktualisiert durch"
+msgstr "Ultimo aggiornamento di"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_write_date
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_write_date
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_write_date
 msgid "Last Updated on"
-msgstr "Zuletzt aktualisiert am"
+msgstr "Ultimo aggiornamento il"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_ids
 msgid "Line"
-msgstr ""
+msgstr "Riga"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -485,12 +482,12 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Month"
-msgstr ""
+msgstr "Mese"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_partner_name
 msgid "Name"
-msgstr "Name"
+msgstr "Nome"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_report_pos_debt_balance
@@ -504,7 +501,7 @@ msgstr ""
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:155
 #, python-format
 msgid "New"
-msgstr "Neu"
+msgstr "Nuovo"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_new_balance
@@ -515,7 +512,7 @@ msgstr ""
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_note
 msgid "Note"
-msgstr "Notiz"
+msgstr "Nota"
 
 #. module: pos_debt_notebook
 #: code:addons/pos_debt_notebook/models.py:146
@@ -561,7 +558,7 @@ msgstr ""
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_order_id
 msgid "POS Order"
-msgstr ""
+msgstr "Ordine POS"
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
@@ -603,7 +600,7 @@ msgstr ""
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_payment_type
 msgid "Payment Type"
-msgstr ""
+msgstr "Tipo di pagamento"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -618,7 +615,7 @@ msgstr ""
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:82
 #, python-format
 msgid "Point of Sale"
-msgstr ""
+msgstr "Punto vendita"
 
 #. module: pos_debt_notebook
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_form
@@ -626,41 +623,41 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_tree
 msgid "Point of Sale Analysis"
-msgstr ""
+msgstr "Analisi punto vendita"
 
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_pos_order
 msgid "Point of Sale Orders"
-msgstr "Point of Sale-Bestellungen"
+msgstr "Ordini punto vendita"
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:151
 #, python-format
 msgid "Prev"
-msgstr ""
+msgstr "Prec"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_product_list
 msgid "Product List"
-msgstr ""
+msgstr "Elenco prodotti"
 
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_product_template
 msgid "Product Template"
-msgstr "Produktvorlage"
+msgstr "Modello prodotto"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_order_product_list
 msgid "Product list"
-msgstr ""
+msgstr "Elenco prodotti"
 
 #. module: pos_debt_notebook
 #. openerp-web
 #: code:addons/pos_debt_notebook/static/src/xml/pos.xml:83
 #, python-format
 msgid "Products"
-msgstr ""
+msgstr "Prodotti"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -674,8 +671,7 @@ msgstr ""
 #: code:addons/pos_debt_notebook/static/src/js/test_pos_debt.js:11
 #, python-format
 msgid "Ready to launch your <b>point of sale</b>? <i>Click here</i>."
-msgstr ""
-"Bereit, Ihren <b>Point of Sale</b>zu starten? <i>Klicken Sie hier</i>."
+msgstr "Pronti a lanciare il <b>punto vendita</b>? <i>Fare clic qui</i>."
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_report_pos_debt_credit_product
@@ -688,12 +684,12 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Salesperson"
-msgstr ""
+msgstr "Venditore"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_session_id
 msgid "Session"
-msgstr ""
+msgstr "Sessione"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -713,7 +709,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_update_state
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_report_pos_debt_state
 msgid "State"
-msgstr "Status"
+msgstr "Stato"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,help:pos_debt_notebook.field_res_partner_debt_limit
@@ -741,7 +737,7 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "This Year"
-msgstr ""
+msgstr "Quest'anno"
 
 #. module: pos_debt_notebook
 #: model:product.product,description:pos_debt_notebook.product_pay_debt
@@ -767,7 +763,7 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Today"
-msgstr ""
+msgstr "Oggi"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_credit_balance_company
@@ -828,12 +824,12 @@ msgstr ""
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_pos_credit_update_search
 #: model:ir.ui.view,arch_db:pos_debt_notebook.view_report_pos_debt_search
 msgid "Week"
-msgstr ""
+msgstr "Settimana"
 
 #. module: pos_debt_notebook
 #: model:ir.model.fields,field_description:pos_debt_notebook.field_pos_credit_invoices_line_wizard_id
 msgid "Wizard"
-msgstr ""
+msgstr "Procedura guidata"
 
 #. module: pos_debt_notebook
 #. openerp-web
@@ -865,9 +861,9 @@ msgstr "pos.config"
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_pos_credit_invoices_line
 msgid "pos.credit.invoices.line"
-msgstr ""
+msgstr "pos.credit.invoices.line"
 
 #. module: pos_debt_notebook
 #: model:ir.model,name:pos_debt_notebook.model_res_config_settings
 msgid "res.config.settings"
-msgstr ""
+msgstr "res.config.settings"
