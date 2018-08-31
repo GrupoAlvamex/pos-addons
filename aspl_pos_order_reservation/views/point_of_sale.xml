@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="ace_view_pos_config_form">
+            <field name="name">pos.config.form.view.inherit</field>
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+            <field name="arch" type="xml">
+                <group name="features" position="after">
+                    <separator string="Order Reservation" />
+                    <group col="4">
+                        <field name="enable_order_reservation"/>
+                        <field name="reserve_stock_location_id"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)],
+                                'required' : [('enable_order_reservation', '=', True)]}"/>
+                        <field name="cancellation_charges_type"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)],
+                                'required' : [('enable_order_reservation', '=', True)]}"/>
+                        <field name="cancellation_charges"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)],
+                                'required' : [('enable_order_reservation', '=', True)]}"/>
+                        <field name="cancellation_charges_product_id"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)],
+                                'required' : [('enable_order_reservation', '=', True)]}"/>
+                        <field name="prod_for_payment"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)],
+                                'required' : [('enable_order_reservation', '=', True)]}"/>
+                        <field name="last_days"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)]}"/>
+                        <field name="record_per_page"
+                                attrs="{'invisible' : [('enable_order_reservation', '=', False)]}"/>
+                        <field name="refund_amount_product_id"
+                               attrs="{'invisible' : [('enable_order_reservation', '=', False)],
+                                'required' : [('enable_order_reservation', '=', True)]}" />
+                        <field name="enable_pos_welcome_mail"
+                               attrs="{'invisible' : [('enable_order_reservation', '=', False)] }" />
+                        <field name="allow_reservation_with_no_amount"
+                               attrs="{'invisible' : [('enable_order_reservation', '=', False)] }" />
+                    </group>
+                </group>
+            </field>
+        </record>
+
+        <record id="order_inherited_form_view" model="ir.ui.view">
+            <field name="name">pos.order.inherited.view</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <field name="pos_reference" position="after">
+                    <field name="reserved"/>
+                    <field name="partial_pay" />
+                    <field name="unreserved" invisible="1"/>
+                    <field name="delivery_date" />
+                    <field name="order_status" />
+                </field>
+                <field name="amount_total" position="after">
+                    <field name="amount_due"/>
+                </field>
+                <button name="%(point_of_sale.action_pos_payment)d" position="replace">
+                    <button name="%(point_of_sale.action_pos_payment)d" string="Payment"
+                            class="oe_highlight" attrs="{'invisible': ['|',('reserved', '=', True),('state','!=', 'draft')]}"
+                            type="action" context="{'pos_session_id' : session_id}"/>
+                </button>
+            </field>
+        </record>
+
+        <record id="view_pos_order_filter_inherit" model="ir.ui.view">
+            <field name="name">pos.order.list.select.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_filter" />
+            <field name="arch" type="xml">
+                <field name="user_id" position="before">
+                    <filter string="Reserved" domain="[('reserved', '=', True)]" />
+                </field>
+            </field>
+        </record>
+
+        <record id="res_partner_view_form_aspl" model="ir.ui.view">
+            <field name="name">res.partner.view.form.aspl</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="lang" position="after">
+                    <field name="credit_limit"/>
+                    <field name="remaining_credit_limit"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>
