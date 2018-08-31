@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="ace_view_pos_config_form">
+            <field name="name">pos.config.form.view.inherit</field>
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="inside"> 
+                    <h2>Order Reservation</h2>
+                    <div class="row mt16 o_settings_container" id="reservation_config">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="enable_order_reservation"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="enable_order_reservation"/>
+                                <div class="text-muted">
+                                    Enable to use Order Reservation with Points in Sale Interface.
+                                </div>
+                                <div class="content-group" attrs="{'invisible' : [('enable_order_reservation', '=', False)]}">
+                                    <div class="row mt16">
+                                        <label string="Reservation Location" for="reserve_stock_location_id" class="col-md-3 o_light_label"/>
+                                        <field name="reserve_stock_location_id"
+			                                attrs="{'required' : [('enable_order_reservation', '=', True)]}" />
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Cancellation Charges Type" for="cancellation_charges_type" class="col-md-3 o_light_label"/>
+                                        <field name="cancellation_charges_type"
+			                                attrs="{'required' : [('enable_order_reservation', '=', True)]}"/>
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Cancellation Charges" for="cancellation_charges" class="col-md-3 o_light_label"/>
+                                        <field name="cancellation_charges"
+			                                attrs="{'required' : [('enable_order_reservation', '=', True)]}"/>
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Cancellation Charges Product" for="cancellation_charges_product_id" class="col-md-3 o_light_label"/>
+                                        <field name="cancellation_charges_product_id"
+			                                attrs="{'required' : [('enable_order_reservation', '=', True)]}"/>
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Paid Product" for="prod_for_payment" class="col-md-3 o_light_label"/>
+                                        <field name="prod_for_payment"
+			                                attrs="{'required' : [('enable_order_reservation', '=', True)]}"/>
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Last Days" for="last_days" class="col-md-3 o_light_label"/>
+                                        <field name="last_days" />
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Record Per Page" for="record_per_page" class="col-md-3 o_light_label"/>
+                                        <field name="record_per_page" />
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Refund Product" for="refund_amount_product_id" class="col-md-3 o_light_label"/>
+                                        <field name="refund_amount_product_id" />
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Enable Welcome Mail" for="enable_pos_welcome_mail" class="col-md-3 o_light_label"/>
+                                        <field name="enable_pos_welcome_mail" />
+                                    </div>
+
+                                    <div class="row mt16">
+                                        <label string="Allow Reservation With No Amount" for="allow_reservation_with_no_amount" class="col-md-3 o_light_label"/>
+                                        <field name="allow_reservation_with_no_amount" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="order_inherited_form_view" model="ir.ui.view">
+            <field name="name">pos.order.inherited.view</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <field name="pos_reference" position="after">
+                    <field name="reserved"/>
+                    <field name="partial_pay" />
+                    <field name="unreserved" invisible="1"/>
+                    <field name="delivery_date" />
+                    <field name="order_status" />
+                </field>
+                <field name="amount_total" position="after">
+                    <field name="amount_due"/>
+                </field>
+                <button name="%(point_of_sale.action_pos_payment)d" position="replace">
+                    <button name="%(point_of_sale.action_pos_payment)d" string="Payment"
+                            class="oe_highlight" attrs="{'invisible': ['|',('reserved', '=', True),('state','!=', 'draft')]}"
+                            type="action" context="{'pos_session_id' : session_id}"/>
+                </button>
+            </field>
+        </record>
+
+        <record id="view_pos_order_filter_inherit" model="ir.ui.view">
+            <field name="name">pos.order.list.select.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_filter" />
+            <field name="arch" type="xml">
+                <field name="user_id" position="before">
+                    <filter string="Reserved" domain="[('reserved', '=', True)]" />
+                </field>
+            </field>
+        </record>
+
+        <record id="res_partner_view_form_aspl" model="ir.ui.view">
+            <field name="name">res.partner.view.form.aspl</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="lang" position="after">
+                    <field name="credit_limit"/>
+                    <field name="remaining_credit_limit"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>
