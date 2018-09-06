@@ -21,15 +21,8 @@
         </div>
     </t>
 
-    <t t-name="ShowReservedItemsList">
-        <div class="control-button show_reserved_item_list">
-            <i class="fa fa-list" aria-hidden="true"></i>
-            Reserved Items
-        </div>
-    </t>
-
     <t t-name="OrderListScreenWidget">
-        <div class="orderlist-screen screen list-screen">
+        <div class="orderlist-screen screen">
             <div class="screen-content" style="max-width: 1275px;">
                 <section class="top-content">
                     <span class='button back'>
@@ -57,27 +50,29 @@
                         <section class='subwindow'>
                             <div class='subwindow-container'>
                                 <div class='subwindow-container-fix touch-scrollable scrollable-y order-list-scroll' style="height:auto;max-height: 490px !important;">
-                                     <table class='order-list item-list'>
-                                         <thead>
-                                             <tr style="text-align: center">
-                                                 <th>Order Ref</th>
-                                                 <th>Receipt Ref</th>
-                                                 <th>Customer</th>
-                                                 <th>Order Date</th>
-                                                 <th>Total</th>
-                                                 <t t-if="widget.pos.config and widget.pos.config.enable_order_reservation">
-                                                     <th>Amount due</th>
-                                                 </t>
-                                                 <t t-if="widget.pos.config and widget.pos.config.enable_order_reservation">
-                                                     <th>Pay</th>
-                                                     <th>Cancel</th>
-                                                     <th>Delivery Date</th>
-                                                 </t>
-                                             </tr>
-                                         </thead>
-                                         <tbody  class='order-list-contents'>
-                                         </tbody>
-                                     </table>
+                                    <div>
+                                        <table class='order-list'>
+                                            <thead>
+                                                <tr style="text-align: center">
+                                                    <th>Order Ref</th>
+                                                    <th>Receipt Ref</th>
+                                                    <th>Customer</th>
+                                                    <th>Order Date</th>
+                                                    <th>Total</th>
+                                                    <t t-if="widget.pos.config and widget.pos.config.enable_order_reservation">
+                                                        <th>Amount due</th>
+                                                    </t>
+                                                    <t t-if="widget.pos.config and widget.pos.config.enable_order_reservation">
+                                                        <th>Pay</th>
+                                                        <th>Cancel</th>
+                                                        <th>Delivery Date</th>
+                                                    </t>
+                                                </tr>
+                                            </thead>
+                                            <tbody  class='order-list-contents'>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -128,6 +123,50 @@
 	            </td>
 	        </t>
         </tr>
+    </t>
+
+    <t t-name="ProductPopup">
+         <div class="modal-dialog">
+            <div class="popup popup-reorder-product">
+               <div class="header">
+                   <div class="btn button cancel">
+                        <i class="fa fa-times"></i>
+                   </div>
+                    <p class="title">Products</p>
+                </div>
+                <div style="height: 276px;overflow: auto;">
+                    <table class="popup-product-list table">
+                         <thead>
+                           <tr>
+                               <th>#</th>
+                               <th>Product</th>
+                               <th>Quantity</th>
+                               <th>Price</th>
+                               <th>Discount</th>
+                               <th>Subtotal</th>
+                           </tr>
+                       </thead>
+                       <tbody class="popup-product-list-contents">
+                           <t t-if="widget.product_list">
+                             <t t-raw="widget.product_list" />
+                           </t>
+                       </tbody>
+                    </table>
+                </div>
+                <div class="footer">
+                    <t t-if="widget.state == 'draft'">
+                        <button class="button confirm save edit">
+                            <div style="font-size: 20px;"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</div>
+                        </button>
+                    </t>
+                    <t t-if="widget.state == 'paid' or widget.state == 'done'">
+                        <button class="button confirm save duplicate">
+                            <div style="font-size: 17px;"><i class="fa fa-repeat" aria-hidden="true"></i>Reorder</div>
+                        </button>
+                    </t>
+                </div>
+            </div>
+         </div>
     </t>
 
     <t t-extend="XmlReceipt">
@@ -368,9 +407,10 @@
             <td><t t-esc='widget.format_currency(statement.amount)' /></td>
         </tr>
     </t>
+
     <t t-name="OrderDetails">
-            <section class='order-details'>
-            <div class='order-name'><t t-esc='order.name' /></div>
+       <section class='order-details'>
+         	<div class='order-name'><t t-esc='order.name' /></div>
             <div class='order-details-box clearfix'>
                 <div class='order-details-left'>
                     <div class='order-detail'>
@@ -653,57 +693,6 @@
                 </div>
             </div>
         </div>
-    </t>
-
-    <t t-name="ReservedItemListScreenWidget">
-        <div class="reserved-item-screen screen list-screen">
-            <div class="screen-content">
-                <section class="top-content">
-                    <span class='button back'>
-                        <i class='fa fa-angle-double-left'></i>
-                        Back
-                    </span>
-                    <span class='searchbox'>
-                        <input placeholder='Search Reserved Items' style="width: 164px;" />
-                        <span class='search-clear'></span>
-                    </span>
-                    <span class='searchbox'></span>
-                </section>
-                <section class="full-content">
-                    <div class='window'>
-                        <section class='subwindow'>
-                            <div class='subwindow-container'>
-                                <div class='subwindow-container-fix touch-scrollable scrollable-y order-list-scroll' style="height:auto;max-height: 490px !important;">
-                                    <table class='reserved-item-list item-list'>
-                                        <thead>
-                                            <tr style="text-align: center">
-                                                <th>Product</th>
-                                                <th>Qty</th>
-                                                <th>Order</th>
-                                                <th>Order Date</th>
-                                                <th>Delivery Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody  class='reserved-item-list-contents'>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </t>
-
-    <t t-name="ReservedItemlistLine">
-        <tr class='reserved-line' t-att-data-id='order.id' style="text-align: center">
-            <td class="pos-left-align"><t t-esc='line.product_id ? line.product_id[1]: ""'/></td>
-            <td><t t-esc='line.qty'/></td>
-            <td><t t-esc='order.name'/></td>
-            <td><t t-esc='moment(order.date_order).format("YYYY-MM-DD")'/></td>
-            <td><t t-esc='order.delivery_date'/></td>
-        </tr>
     </t>
 
 </templates>

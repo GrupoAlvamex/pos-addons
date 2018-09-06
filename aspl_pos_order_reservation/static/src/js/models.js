@@ -1,6 +1,6 @@
 odoo.define('aspl_pos_order_reservation.models', function (require) {
 	var models = require('point_of_sale.models');
-	var rpc = require('web.rpc');
+	var Model = require('web.DataModel');
 	var utils = require('web.utils');
 	var round_pr = utils.round_precision;
 
@@ -229,6 +229,11 @@ odoo.define('aspl_pos_order_reservation.models', function (require) {
     
 	var _super_posmodel = models.PosModel;
 	 models.PosModel = models.PosModel.extend({
+		 fetch: function(model, fields, domain, ctx){
+            this._load_progress = (this._load_progress || 0) + 0.05; 
+            this.chrome.loading_message(('Loading')+' '+model,this._load_progress);
+            return new Model(model).query(fields).filter(domain).context(ctx).all()
+        },
 		load_server_data: function(){
 			var self = this;
 			var loaded = _super_posmodel.prototype.load_server_data.call(this);
@@ -245,15 +250,8 @@ odoo.define('aspl_pos_order_reservation.models', function (require) {
                     self.domain_order.push(['create_date' ,'>=', start_date]);
                 }
                 self.domain_order.push(['state','in',['draft']])
-                var params = {
-                	model: 'pos.order',
-                	method: 'ac_pos_search_read',
-                	args: [{'domain': self.domain_order}],
-                }
-                return rpc.query(params, {async: false})
-//    			return new Model('pos.order').get_func('ac_pos_search_read')(self.domain_order)
+    			return new Model('pos.order').get_func('ac_pos_search_read')(self.domain_order)
                 .then(function(orders){
-                	console.log("orders", orders);
                 	self.db.add_orders(orders);
                     self.set({'pos_order_list' : orders});
                 });
@@ -261,132 +259,103 @@ odoo.define('aspl_pos_order_reservation.models', function (require) {
 			return loaded;
 		},
 		_save_to_server: function (orders, options) {
-			var self = this;
-			return _super_posmodel.prototype._save_to_server.apply(this, arguments)
-			.then(function(server_ids){
-				if(server_ids.length > 0 && self.config.enable_order_reservation){
-					var params = {
-						model: 'pos.order',
-						method: 'ac_pos_search_read',
-						args: [{'domain': [['id', 'in', server_ids]]}],
-					}
-					rpc.query(params, {async: false}).then(function(orders){
-		                if(orders.length > 0){
-		                	orders = orders[0];
-		                    var exist_order = _.findWhere(self.get('pos_order_list'), {'pos_reference': orders.pos_reference})
-		                    if(exist_order){
-		                    	_.extend(exist_order, orders);
-		                    } else {
-		                    	self.get('pos_order_list').push(orders);
-		                    }
-		                    var new_orders = _.sortBy(self.get('pos_order_list'), 'id').reverse();
-		                    self.db.add_orders(new_orders);
-		                    self.set({ 'pos_order_list' : new_orders });
-		                }
-		            });
-				}
-			});
-		},
-//		_save_to_server: function (orders, options) {
-//            if (!orders || !orders.length) {
-//                var result = $.Deferred();
-//                result.resolve([]);
-//                return result;
-//            }
-//                
-//            options = options || {};
-//
-//            var self = this;
-//            var timeout = typeof options.timeout === 'number' ? options.timeout : 7500 * orders.length;
-//
-//            // we try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
-//            // then we want to notify the user that we are waiting on something )
-//            var posOrderModel = new Model('pos.order');
-//            return posOrderModel.call('create_from_ui',
-//                [_.map(orders, function (order) {
-//                    order.to_invoice = options.to_invoice || false;
-//                    return order;
-//                })],
-//                undefined,
-//                {
-//                    shadow: !options.to_invoice,
-//                    timeout: timeout
-//                }
-//            ).then(function (server_ids) {
-//            	if(server_ids != []){
-//            		new Model('pos.order').get_func('ac_pos_search_read')([['id', 'in', server_ids]])
-//                    .then(function(orders){
-//                        _.each(orders, function(order){
-//                            if(order.fresh_order && self.config.enable_pos_welcome_mail){
-//                                new Model('pos.order').call('send_reserve_mail', [order.id])
-//                            }
-//                        })
-//                        var orders_data= self.get('pos_order_list');
-//                        var new_orders = [];
-//                        var flag = true;
-//                        if(orders && orders[0]){
-//                        	for(var i in orders_data){
-//                        		if(orders_data[i].pos_reference == orders[0].pos_reference){
-//                        			new_orders.push(orders[0])
-//                        			flag = false
-//                        		} else {
-//                        			new_orders.push(orders_data[i])
-//                        		}
-//                        	}
-//                        	if(flag){
-//                        		new_orders = orders.concat(orders_data);
-//                        	}
-//                         self.db.add_orders(new_orders);
-//                            self.set({'pos_order_list' : new_orders}); 
-//                        } else {
-//                        	new_orders = orders.concat(orders_data);
-//                         self.db.add_orders(new_orders);
-//                            self.set({'pos_order_list' : new_orders}); 
-//                        }
-//                    });
-//               }
-//                _.each(orders, function (order) {
-//                    self.db.remove_order(order.id);
-//                });
-//                return server_ids;
-//            }).fail(function (error, event){
-//                if(error.code === 200 ){    // Business Logic Error, not a connection problem
-//                	self.gui.show_popup('error-traceback',{
-//                        message: error.data.message,
-//                        comment: error.data.debug
-//                    });
-//                }
-//                // prevent an error popup creation by the rpc failure
-//                // we want the failure to be silent as we send the orders in the background
-//                event.preventDefault();
-//                console.error('Failed to send orders:', orders);
-//            });
-//        },
-			//			New Code will be on add_partners
-//        load_new_partners: function(){
-//            var self = this;
-//            var def  = new $.Deferred();
-//            var fields = _.find(this.models,function(model){ return model.model === 'res.partner'; }).fields;
-//            var domain = [['customer','=',true],['write_date','>',this.db.get_partner_write_date()]];
-//            var context = {'timeout':3000, 'shadow': true};
-//            rpc.query()
-//            new Model('res.partner').call('search_read',
-//            [domain, fields, 0, false, false, context], {}, { async: false })
-//            .then(function(partners){
-//                _.each(partners, function(partner){
-//                    if(self.db.partner_by_id[partner.id]){
-//                        var id = partner.id;
-//                        delete self.db.partner_by_id[partner.id]
-//                    }
-//                });
-//                if (self.db.add_partners(partners)) {   // check if the partners we got were real updates
-//                    def.resolve();
-//                } else {
-//                    def.reject();
-//                }
-//            }, function(err,event){ event.preventDefault(); def.reject(); });
-//            return def;
-//        },
+            if (!orders || !orders.length) {
+                var result = $.Deferred();
+                result.resolve([]);
+                return result;
+            }
+                
+            options = options || {};
+
+            var self = this;
+            var timeout = typeof options.timeout === 'number' ? options.timeout : 7500 * orders.length;
+
+            // we try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
+            // then we want to notify the user that we are waiting on something )
+            var posOrderModel = new Model('pos.order');
+            return posOrderModel.call('create_from_ui',
+                [_.map(orders, function (order) {
+                    order.to_invoice = options.to_invoice || false;
+                    return order;
+                })],
+                undefined,
+                {
+                    shadow: !options.to_invoice,
+                    timeout: timeout
+                }
+            ).then(function (server_ids) {
+            	if(server_ids != []){
+            		new Model('pos.order').get_func('ac_pos_search_read')([['id', 'in', server_ids]])
+                    .then(function(orders){
+                        _.each(orders, function(order){
+                            if(order.fresh_order && self.config.enable_pos_welcome_mail){
+                                new Model('pos.order').call('send_reserve_mail', [order.id])
+                            }
+                        })
+                        var orders_data= self.get('pos_order_list');
+                        var new_orders = [];
+                        var flag = true;
+                        if(orders && orders[0]){
+                        	for(var i in orders_data){
+                        		if(orders_data[i].pos_reference == orders[0].pos_reference){
+                        			new_orders.push(orders[0])
+                        			flag = false
+                        		} else {
+                        			new_orders.push(orders_data[i])
+                        		}
+                        	}
+                        	if(flag){
+                        		new_orders = orders.concat(orders_data);
+                        	}
+                         self.db.add_orders(new_orders);
+                            self.set({'pos_order_list' : new_orders}); 
+                        } else {
+                        	new_orders = orders.concat(orders_data);
+                         self.db.add_orders(new_orders);
+                            self.set({'pos_order_list' : new_orders}); 
+                        }
+                    });
+               }
+                _.each(orders, function (order) {
+                    self.db.remove_order(order.id);
+                });
+                return server_ids;
+            }).fail(function (error, event){
+                if(error.code === 200 ){    // Business Logic Error, not a connection problem
+                	self.gui.show_popup('error-traceback',{
+                        message: error.data.message,
+                        comment: error.data.debug
+                    });
+                }
+                // prevent an error popup creation by the rpc failure
+                // we want the failure to be silent as we send the orders in the background
+                event.preventDefault();
+                console.error('Failed to send orders:', orders);
+            });
+        },
+        load_new_partners: function(){
+            var self = this;
+            var def  = new $.Deferred();
+            var fields = _.find(this.models,function(model){ return model.model === 'res.partner'; }).fields;
+            var domain = [['customer','=',true],['write_date','>',this.db.get_partner_write_date()]];
+            var context = {'timeout':3000, 'shadow': true};
+            new Model('res.partner').call('search_read',
+            [domain, fields, 0, false, false, context], {}, { async: false })
+            .then(function(partners){
+                _.each(partners, function(partner){
+                    if(self.db.partner_by_id[partner.id]){
+                        var id = partner.id;
+                        delete self.db.partner_by_id[partner.id]
+                    }
+                });
+                if (self.db.add_partners(partners)) {   // check if the partners we got were real updates
+                    def.resolve();
+                } else {
+                    def.reject();
+                }
+            }, function(err,event){ event.preventDefault(); def.reject(); });
+            return def;
+        },
 	});	
 
     var _super_orderline = models.Orderline.prototype;

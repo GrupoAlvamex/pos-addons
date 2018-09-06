@@ -63,7 +63,7 @@
 			container.appendChild(bNext);
 			container.appendChild(bLast);
 
-			$(this).parent().after(container);
+			$('.order-list-scroll').after(container);
 
 			update();
 

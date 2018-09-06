@@ -1,7 +1,7 @@
 odoo.define('aspl_pos_order_reservation.screens', function (require) {
 	var screens = require('point_of_sale.screens');
 	var gui = require('point_of_sale.gui');
-	var rpc = require('web.rpc');
+	var Model = require('web.DataModel');
 	var utils = require('web.utils');
 	var PopupWidget = require('point_of_sale.popups');
 	var models = require('point_of_sale.models');
@@ -87,22 +87,6 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
 	    },
 	});
 
-    var ShowReservedItemsList = screens.ActionButtonWidget.extend({
-	    template : 'ShowReservedItemsList',
-	    button_click : function() {
-	        self = this;
-	        self.gui.show_screen('reserved_items_list');
-	    },
-	});
-
-	screens.define_action_button({
-	    'name' : 'ShowReservedItemsList',
-	    'widget' : ShowReservedItemsList,
-	    'condition': function(){
-	        return this.pos.config.enable_order_reservation
-	    },
-	});
-
 	/* Order list screen */
 	var OrderListScreenWidget = screens.ScreenWidget.extend({
 	    template: 'OrderListScreenWidget',
@@ -117,108 +101,134 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
             	}
 	        	self.reloading_orders();
 	        };
-	        if(this.pos.config.iface_vkeyboard && self.chrome.widget.keyboard){
-            	self.chrome.widget.keyboard.connect(this.$('.searchbox input'));
-            }
 	    },
 
-	    events: {
-	    	'click .button.back':  'click_back',
-	    	'keyup .searchbox input': 'search_order',
-	    	'click .searchbox .search-clear': 'clear_search',
-	        'click .button.reserved':  'click_reserved',
-	        'click .order-line td:not(.order_history_button)': 'click_order_line',
-	        'click #pay_due_amt': 'pay_order_due',
-	        'click #cancel_order': 'click_cancel_order',
-	        'click #delivery_date': 'click_delivery_date',
-	    },
 	    filter:"all",
+
         date: "all",
-        clear_cart: function(){
-        	var self = this;
-        	var order = this.pos.get_order();
-        	var currentOrderLines = order.get_orderlines();
-        	if(currentOrderLines && currentOrderLines.length > 0){
-        		_.each(currentOrderLines,function(item) {
-        			order.remove_orderline(item);
-                });
-        	} else {
-        		return
-        	}
-        	self.clear_cart();
-        },
-        get_orders: function(){
-        	return this.pos.get('pos_order_list');
-        },
-        click_back: function(){
-        	this.gui.show_screen('products');
-        },
-        search_order: function(event){
-        	var self = this;
-        	var search_timeout = null;
-        	$(event.currentTarget).autocomplete({
-                source: self.search_list,
-                select: function (a, b) {
-                    self.perform_search(b.item.value, true);
+
+	    start: function(){
+	    	var self = this;
+            this._super();
+            
+            this.$('.back').click(function(){
+                self.gui.show_screen('products');
+            });
+
+            var orders = self.pos.get('pos_order_list');
+            this.render_list(orders);
+
+            $('input#datepicker').datepicker({
+           	    dateFormat: 'yy-mm-dd',
+                autoclose: true,
+                closeText: 'Clear',
+                showButtonPanel: true,
+                onSelect: function (dateText, inst) {
+                	var date = $(this).val();
+					if (date){
+					    self.date = date;
+					    self.render_list(self.pos.get('pos_order_list'));
+					}
+				},
+				onClose: function(dateText, inst){
+                    if( !dateText ){
+                        self.date = "all";
+                        self.render_list(self.pos.get('pos_order_list'));
+                    }
                 }
-            })
-            clearTimeout(search_timeout);
-            var query = $(event.currentTarget).val();
-            search_timeout = setTimeout(function(){
-                self.perform_search(query, event.which === 13);
-            },70);
-	    },
-	    click_reserved: function(event){
-	    	var self = this;
-        	if($(event.currentTarget).hasClass('selected')){
-        		$(event.currentTarget).removeClass('selected');
-        		self.filter = "all";
-    		}else{
-    			$(event.currentTarget).addClass('selected');
-        		self.filter = "reserved";
-    		}
-    		self.render_list(self.get_orders());
-	    },
-	    click_order_line: function(event){
-	    	var self = this;
-	    	var order_id = parseInt($(event.currentTarget).parent().data('id'));
-	    	if(order_id){
-	    		self.gui.show_screen('orderdetail', {'order_id': order_id});
-	    	}
-	    },
-	    click_cancel_order: function(event){
-	    	var self = this;
-	    	var order_id = parseInt($(event.currentTarget).data('id'));
-            var result = self.pos.db.get_order_by_id(order_id);
-            if(result){
-            	self.gui.show_popup("cancel_order_popup", { 'order': result });
+            }).focus(function(){
+                var thisCalendar = $(this);
+                $('.ui-datepicker-close').click(function() {
+                    thisCalendar.val('');
+                    self.date = "all";
+                    self.render_list(self.pos.get('pos_order_list'));
+                });
+            });
+
+//			$('input#datepicker').datepicker({
+//           		'dateFormat': 'yy-mm-dd',
+//               'autoclose': true,
+//               onSelect: function (dateText, inst) {
+//                	var date = $(this).val();
+//					if (date){
+//					    self.date = date;
+//					    self.render_list(orders);
+//					}
+//				}
+//           });
+
+            //button draft
+            this.$('.button.reserved').click(function(){
+            	if(self.$(this).hasClass('selected')){
+	        		self.$(this).removeClass('selected');
+	        		self.filter = "all";
+        		}else{
+        			self.$(this).addClass('selected');
+	        		self.filter = "reserved";
+        		}
+        		self.render_list(self.pos.get('pos_order_list'));
+            });
+
+			this.$('.order-list-contents').delegate('.order-line td:not(.order_history_button)','click', function(event){
+                var order_id = parseInt($(this).parent().data('id'));
+                self.gui.show_screen('orderdetail', {'order_id': order_id});
+			});
+
+            //Pay due Amount
+            this.$('.order-list-contents').delegate('#pay_due_amt','click',function(event){
+            	var order_id = parseInt($(this).data('id'));
+            	self.pay_order_due(order_id);
+
+            });
+
+            this.$('.order-list-contents').delegate('#cancel_order','click', function(event){
+                var order = self.pos.get_order();
+                var order_id = parseInt($(this).data('id'));
+                var result = self.pos.db.get_order_by_id(order_id);
+
+                self.gui.show_popup("cancel_order_popup", { 'order': result });
+            });
+
+            this.$('.order-list-contents').delegate('#delivery_date','click', function(event){
+                var order = self.pos.get_order();
+                var order_id = parseInt($(this).data('id'));
+                var result = self.pos.db.get_order_by_id(order_id);
+                order.set_delivery_date(result.delivery_date);
+                self.gui.show_popup("delivery_date_popup", { 'order': result, 'new_date': false });
+            });
+
+          //search box
+            var search_timeout = null;
+            if(this.pos.config.iface_vkeyboard && self.chrome.widget.keyboard){
+            	self.chrome.widget.keyboard.connect(this.$('.searchbox input'));
             }
+            this.$('.searchbox input').on('keyup',function(event){
+                $(this).autocomplete({
+                    source: self.search_list,
+                    select: function (a, b) {
+                        self.perform_search(b.item.value, true);
+                    }
+                })
+                clearTimeout(search_timeout);
+                var query = this.value;
+                search_timeout = setTimeout(function(){
+                    self.perform_search(query, event.which === 13);
+                },70);
+            });
+
+            this.$('.searchbox .search-clear').click(function(){
+                self.clear_search();
+            });
+            
 	    },
-	    click_delivery_date: function(event){
-	    	var self = this;
-	    	var order = self.pos.get_order();
-            var order_id = parseInt($(event.currentTarget).data('id'));
-            var result = self.pos.db.get_order_by_id(order_id);
-            if(result){
-	            order.set_delivery_date(result.delivery_date);
-	            self.gui.show_popup("delivery_date_popup", { 'order': result, 'new_date': false });
-            }
-	    },
-	    pay_order_due: function(event, order_id){
+	    pay_order_due: function(order_id){
 	        var self = this;
-	        var order_id = event ? parseInt($(event.currentTarget).data('id')) : order_id;
 	        var result = self.pos.db.get_order_by_id(order_id);
 	        if(!result){
-	        	var params = {
-                	model: 'pos.order',
-                	method: 'ac_pos_search_read',
-                	args: [{ 'domain': [['id', '=', order_id], ['state', 'not in', ['draft']]] }],
-                }
-	        	rpc.query(params, {async: false})
+	            new Model('pos.order').call('search_read', [[['id', '=', order_id], ['state', 'not in', ['draft']]]])
 	            .then(function(order){
-	                if(order && order[0]){
+	                if(order && order[0])
 	                    result = order[0]
-	                }
 	            });
 	        }
             if(result.state == "paid"){
@@ -233,27 +243,31 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
                 var count = 0;
                 var selectedOrder = self.pos.get_order();
                 var currentOrderLines = selectedOrder.get_orderlines();
-                self.clear_cart();
+                if(currentOrderLines.length > 0) {
+                    for (var i=0; i <= currentOrderLines.length + 1; i++) {
+                        _.each(currentOrderLines,function(item) {
+                            currentOrderLines.remove_orderline(item);
+                        });
+                    }
+                    for (var i=0; i <= currentOrderLines.length + 1; i++) {
+                        _.each(currentOrderLines,function(item) {
+                            currentOrderLines.remove_orderline(item);
+                        });
+                    }
+                }
                 if (result.partner_id && result.partner_id[0]) {
                     var partner = self.pos.db.get_partner_by_id(result.partner_id[0])
-                    if(partner){
-                    	selectedOrder.set_client(partner);
-                    }
                 }
                 if(!result.partial_pay){
                     selectedOrder.set_reservation_mode(true);
                 }
                 selectedOrder.set_delivery_date(result.delivery_date);
+                selectedOrder.set_client(partner);
                 selectedOrder.set_pos_reference(result.pos_reference);
                 selectedOrder.set_paying_due(true);
                 if (result.lines) {
-                		var params = {
-                			model: 'pos.order.line',
-                			method: 'search_read',
-                			domain: [['id', 'in', _.pluck(result.lines, 'id')]],
-                		}
-                		rpc.query(params, {async: false})
-                        .then(function(results) {
+                        new Model("pos.order.line").get_func("search_read")([['id', 'in', result.lines]], []).then(
+                            function(results) {
                              if(results){
                                  _.each(results, function(res) {
                                      var product = self.pos.db.get_product_by_id(Number(res.product_id[0]));
@@ -270,7 +284,7 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
                                 if(prd && result.amount_due > 0){
                                     var paid_amt = result.amount_total - result.amount_due;
                                     selectedOrder.set_amount_paid(paid_amt);
-                                    selectedOrder.add_product(prd,{'quantity': -1, 'price': paid_amt});
+                                    selectedOrder.add_product(prd,{'price':-paid_amt});
                                 }
                                 self.gui.show_screen('payment');
                              }
@@ -281,35 +295,8 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
             }
 	    },
 	    show: function(){
-	    	var self = this;
 	        this._super();
 	        this.reload_orders();
-	        $('input#datepicker').datepicker({
-           	    dateFormat: 'yy-mm-dd',
-                autoclose: true,
-                closeText: 'Clear',
-                showButtonPanel: true,
-                onSelect: function (dateText, inst) {
-                	var date = $(this).val();
-					if (date){
-					    self.date = date;
-					    self.render_list(self.get_orders());
-					}
-				},
-				onClose: function(dateText, inst){
-                    if( !dateText ){
-                        self.date = "all";
-                        self.render_list(self.get_orders());
-                    }
-                }
-            }).focus(function(){
-                var thisCalendar = $(this);
-                $('.ui-datepicker-close').click(function() {
-                    thisCalendar.val('');
-                    self.date = "all";
-                    self.render_list(self.get_orders());
-                });
-            })
 	        $('.button.reserved').removeClass('selected').trigger('click');
 	    },
 	    perform_search: function(query, associate_result){
@@ -318,56 +305,56 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
 				var orders = this.pos.db.search_order(query);
 				self.render_list(orders);
             }else{
-                this.render_list(self.get_orders());
+                var orders = self.pos.get('pos_order_list');
+                this.render_list(orders);
             }
         },
         clear_search: function(){
-            this.render_list(this.get_orders());
+            var orders = this.pos.get('pos_order_list');
+            this.render_list(orders);
             this.$('.searchbox input')[0].value = '';
             this.$('.searchbox input').focus();
         },
 	    render_list: function(orders){
-	    	if(orders.length > 0){
-	        	var self = this;
-	            var contents = this.$el[0].querySelector('.order-list-contents');
-	            contents.innerHTML = "";
-	            var temp = [];
-	            if(self.filter !== "" && self.filter !== "all"){
-		            orders = $.grep(orders,function(order){
-		            	return order.reserved;
-		            });
-	            }
-	            if(self.date !== "" && self.date !== "all"){
-	            	var x = [];
-	            	for (var i=0; i<orders.length;i++){
-	                    var date_order = $.datepicker.formatDate("yy-mm-dd",new Date(orders[i].date_order));
-	            		if(self.date === date_order){
-	            			x.push(orders[i]);
-	            		}
-	            	}
-	            	orders = x;
-	            }
-	            for(var i = 0, len = Math.min(orders.length,1000); i < len; i++){
-	                var order    = orders[i];
-	                order.amount_total = parseFloat(order.amount_total).toFixed(2); 
-	            	var clientline_html = QWeb.render('OrderlistLine',{widget: this, order:order});
-	                var clientline = document.createElement('tbody');
-	                clientline.innerHTML = clientline_html;
-	                clientline = clientline.childNodes[1];
-	                contents.appendChild(clientline);
-	            }
-	            $("table.order-list").simplePagination({
-					previousButtonClass: "btn btn-danger",
-					nextButtonClass: "btn btn-danger",
-					previousButtonText: '<i class="fa fa-angle-left fa-lg"></i>',
-					nextButtonText: '<i class="fa fa-angle-right fa-lg"></i>',
-					perPage:self.pos.config.record_per_page > 0 ? self.pos.config.record_per_page : 10
-				});
-	    	}
+        	var self = this;
+            var contents = this.$el[0].querySelector('.order-list-contents');
+            contents.innerHTML = "";
+            var temp = [];
+            if(self.filter !== "" && self.filter !== "all"){
+	            orders = $.grep(orders,function(order){
+	            	return order.reserved;
+	            });
+            }
+            if(self.date !== "" && self.date !== "all"){
+            	var x = [];
+            	for (var i=0; i<orders.length;i++){
+                    var date_order = $.datepicker.formatDate("yy-mm-dd",new Date(orders[i].date_order));
+            		if(self.date === date_order){
+            			x.push(orders[i]);
+            		}
+            	}
+            	orders = x;
+            }
+            for(var i = 0, len = Math.min(orders.length,1000); i < len; i++){
+                var order    = orders[i];
+                order.amount_total = parseFloat(order.amount_total).toFixed(2); 
+            	var clientline_html = QWeb.render('OrderlistLine',{widget: this, order:order});
+                var clientline = document.createElement('tbody');
+                clientline.innerHTML = clientline_html;
+                clientline = clientline.childNodes[1];
+                contents.appendChild(clientline);
+            }
+            $("table.order-list").simplePagination({
+				previousButtonClass: "btn btn-danger",
+				nextButtonClass: "btn btn-danger",
+				previousButtonText: '<i class="fa fa-angle-left fa-lg"></i>',
+				nextButtonText: '<i class="fa fa-angle-right fa-lg"></i>',
+				perPage:self.pos.config.record_per_page > 0 ? self.pos.config.record_per_page : 10
+			});
         },
         reload_orders: function(){
         	var self = this;
-            var orders = self.get_orders()
+            var orders = self.pos.get('pos_order_list');
             this.search_list = []
             _.each(self.pos.partners, function(partner){
                 self.search_list.push(partner.name);
@@ -379,25 +366,27 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
         },
 	    reloading_orders: function(){
 	    	var self = this;
-	    	var params = {
-	    		model: 'pos.order',
-	    		method: 'ac_pos_search_read',
-	    		args: [{'domain': self.pos.domain_order}],
-	    	}
-	    	return rpc.query(params, {async: false})
+	    	return new Model('pos.order').get_func('ac_pos_search_read')
+	    	(self.pos.domain_order)
 	    	.then(function(result){
 	    		self.pos.db.add_orders(result);
 	    		self.pos.set({ 'pos_order_list' : result });
 	    		self.reload_orders();
 	    		return self.pos.get('pos_order_list');
-	    	}).fail(function (type, error){
-                if(error.code === 200 ){    // Business Logic Error, not a connection problem
-                    self.gui.show_popup('error-traceback',{
-                         'title': error.data.message,
-                         'body':  error.data.debug
-                    });
-                 }
-             });
+	    	}).fail(function (error, event){
+               if(error.code === 200 ){    // Business Logic Error, not a connection problem
+              	self.gui.show_popup('error-traceback',{
+                      message: error.data.message,
+                      comment: error.data.debug
+                  });
+              }
+              // prevent an error popup creation by the rpc failure
+              // we want the failure to be silent as we send the orders in the background
+              event.preventDefault();
+              var orders=self.pos.get('pos_order_list');
+      	        self.reload_orders();
+      	        return orders
+              });
 	    },
 	    renderElement: function(){
 	    	var self = this;
@@ -523,18 +512,18 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
 	    },
     });
 	
-//	screens.OrderWidget.include({
-//		set_value: function(val) {
-//			var order = this.pos.get_order();
-//			var line = order.get_selected_orderline();
-//	    	if ($.inArray(line && line.get_product().id,
-//	    	    [this.pos.config.prod_for_payment[0],
-//	    	    this.pos.config.refund_amount_product_id[0],
-//	    	    this.pos.config.cancellation_charges_product_id[0]]) == -1) {
-//	    		this._super(val)
-//	    	}
-//		},
-//	});
+	screens.OrderWidget.include({
+		set_value: function(val) {
+			var order = this.pos.get_order();
+			var line = order.get_selected_orderline();
+	    	if ($.inArray(line && line.get_product().id,
+	    	    [this.pos.config.prod_for_payment[0],
+	    	    this.pos.config.refund_amount_product_id[0],
+	    	    this.pos.config.cancellation_charges_product_id[0]]) == -1) {
+	    		this._super(val)
+	    	}
+		},
+	});
 
     var OrderDetailScreenWidget = screens.ScreenWidget.extend({
 	    template: 'OrderDetailScreenWidget',
@@ -569,18 +558,12 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
             });
             if(self.clicked_order){
 				this.$('.pay').click(function(){
-                    self.pos.gui.screen_instances.orderlist.pay_order_due(false, order_id)
+                    self.pos.gui.screen_instances.orderlist.pay_order_due(order_id)
                 });
 				var contents = this.$('.order-details-contents');
 				contents.append($(QWeb.render('OrderDetails',{widget:this, order:self.clicked_order})));
-				var params = {
-					model: 'account.bank.statement.line',
-					method: 'search_read',
-					domain: [['pos_statement_id', '=', order_id]],
-				}
-				rpc.query(params, {async: false})
-//				new Model('account.bank.statement.line').call('search_read',
-//				[[['pos_statement_id', '=', order_id]]], {}, {'async': true})
+				new Model('account.bank.statement.line').call('search_read',
+				[[['pos_statement_id', '=', order_id]]], {}, {'async': true})
 				.then(function(statements){
 					if(statements){
 						self.render_list(statements);
@@ -648,13 +631,7 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
             }
         },
         _get_customer_history: function(partner){
-        	var params = {
-        		model: 'pos.order',
-        		method: 'search_read',
-        		domain: [['partner_id', '=', partner.id]],
-        	}
-        	rpc.query(params, {async: false})
-//            new Model('pos.order').call('search_read', [[['partner_id', '=', partner.id]]], {}, {async: false})
+            new Model('pos.order').call('search_read', [[['partner_id', '=', partner.id]]], {}, {async: false})
             .then(function(orders){
                 if(orders){
                      var filtered_orders = orders.filter(function(o){return (o.amount_total - o.amount_paid) > 0})
@@ -701,84 +678,4 @@ odoo.define('aspl_pos_order_reservation.screens', function (require) {
         }
 	});
 
-    var ReservedItemListScreenWidget = screens.ScreenWidget.extend({
-	    template: 'ReservedItemListScreenWidget',
-	    events: {
-	    	'click .button.back': 'click_back',
-	    	'keyup .searchbox input': 'search_order',
-	    	'click .searchbox .search-clear': 'clear_search',
-	    },
-	    click_back: function(){
-	    	this.gui.back();
-	    },
-	    start: function(){
-	    	var self = this;
-	    	this._super();
-	    	self.pos.db.add_reserved_items(self._get_only_lines());
-	    },
-	    show: function(){
-	    	var self = this;
-	    	this._super();
-	    	this.render_list(this._get_only_lines())
-	    },
-	    _get_only_lines: function(){
-	    	var self = this;
-	    	var orders = this.pos.get('pos_order_list');
-	    	var only_lines = []
-	    	orders = _.where(orders, {reserved: true})
-	    	_.each(orders, function(order){
-	    		_.each(order.lines, function(line){
-	    			if(!line.cancel_item && line.line_status != "full"){
-	    				only_lines.push(line);
-	    			}
-	    		})
-	    	})
-	    	return only_lines
-	    	
-	    },
-	    render_list: function(lines){
-	    	var self = this;
-	    	var contents = this.$el[0].querySelector('.reserved-item-list-contents');
-            contents.innerHTML = "";
-	    	_.each(lines, function(line){
-	    		var order = self.pos.db.get_order_by_id(line.order_id[0]);
-	    		var reserved_item_html = QWeb.render('ReservedItemlistLine',{widget: this, order:order, line: line});
-	    		var itemline = document.createElement('tbody');
-	    		itemline.innerHTML = reserved_item_html;
-	    		itemline = itemline.childNodes[1];
-	    		contents.appendChild(itemline);
-	    	});
-	    	$("table.reserved-item-list").simplePagination({
-				previousButtonClass: "btn btn-danger",
-				nextButtonClass: "btn btn-danger",
-				previousButtonText: '<i class="fa fa-angle-left fa-lg"></i>',
-				nextButtonText: '<i class="fa fa-angle-right fa-lg"></i>',
-				perPage:10
-			});
-	    },
-	    search_order: function(event){
-        	var self = this;
-        	var search_timeout = null;
-            clearTimeout(search_timeout);
-            var query = $(event.currentTarget).val();
-            search_timeout = setTimeout(function(){
-                self.perform_search(query, event.which === 13);
-            },70);
-	    },
-	    perform_search: function(query, associate_result){
-	        var self = this;
-            if(query){
-				var lines = this.pos.db.search_item(query);
-				self.render_list(lines);
-            }else{
-                this.render_list(this._get_only_lines())
-            }
-        },
-        clear_search: function(){
-        	this.render_list(this._get_only_lines())
-            this.$('.searchbox input')[0].value = '';
-            this.$('.searchbox input').focus();
-        },
-    });
-    gui.define_screen({name:'reserved_items_list', widget: ReservedItemListScreenWidget});
 });

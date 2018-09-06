@@ -52,8 +52,8 @@ class pos_order(models.Model):
                                       'location_dest_id': location_dest_id.id, 'origin':each.name})
                     picking_id.action_confirm()
                     picking_id.force_assign()
-                    picking_id.button_validate()
-                    stock_transfer_id = self.env['stock.immediate.transfer'].search([('pick_ids', '=', picking_id.id)], limit=1).process()
+                    picking_id.do_new_transfer()
+                    stock_transfer_id = self.env['stock.immediate.transfer'].search([('pick_id', '=', picking_id.id)], limit=1)
                     if stock_transfer_id:
                         stock_transfer_id.process()
                     query = ''' UPDATE pos_order SET unreserved=True,
@@ -101,8 +101,8 @@ class pos_order(models.Model):
             if picking_id_cust and picking_id_cust.move_lines:
                 picking_id_cust.action_confirm()
                 picking_id_cust.force_assign()
-                picking_id_cust.button_validate()
-                stock_transfer_id = self.env['stock.immediate.transfer'].search([('pick_ids', '=', picking_id_cust.id)], limit=1).process()
+                picking_id_cust.do_new_transfer()
+                stock_transfer_id = self.env['stock.immediate.transfer'].search([('pick_id', '=', picking_id_cust.id)], limit=1)
                 if stock_transfer_id:
                     stock_transfer_id.process()
                 self.with_context({'out_order' :True}).write({'picking_id' : picking_id_cust.id,'unreserved':True})
@@ -225,8 +225,8 @@ class pos_order(models.Model):
             if picking_id_cust and picking_id_cust.move_lines:
                 picking_id_cust.action_confirm()
                 picking_id_cust.force_assign()
-                picking_id_cust.button_validate()
-                stock_transfer_id = stock_imm_tra_obj.search([('pick_ids', '=', picking_id_cust.id)], limit=1).process()
+                picking_id_cust.do_new_transfer()
+                stock_transfer_id = stock_imm_tra_obj.search([('pick_id', '=', picking_id_cust.id)], limit=1)
                 if stock_transfer_id:
                     stock_transfer_id.process()
                 order_obj.with_context({'out_order' :True}).write({'picking_id' : picking_id_cust.id,'unreserved':True})
@@ -235,8 +235,8 @@ class pos_order(models.Model):
             if picking_id_rev and picking_id_rev.move_lines:
                 picking_id_rev.action_confirm()
                 picking_id_rev.force_assign()
-                picking_id_rev.button_validate()
-                stock_transfer_id = stock_imm_tra_obj.search([('pick_ids', '=', picking_id_rev.id)], limit=1).process()
+                picking_id_rev.do_new_transfer()
+                stock_transfer_id = stock_imm_tra_obj.search([('pick_id', '=', picking_id_rev.id)], limit=1)
                 if stock_transfer_id:
                     stock_transfer_id.process()
                 order_obj.with_context({'out_order' :True}).write({'picking_id' : picking_id_rev.id,'unreserved':True})
@@ -254,7 +254,7 @@ class pos_order(models.Model):
             if not float_is_zero(order['amount_return'], self.env['decimal.precision'].precision_get('Account')) or order['cancel_order']:
                 cash_journal = session.cash_journal_id
                 if not cash_journal:
-                    cash_journal_ids = session.statement_ids.filtered(lambda st: st.journal_id.type == 'cash')
+                    cash_journal_ids = filter(lambda st: st.journal_id.type == 'cash', session.statement_ids)
                     if not len(cash_journal_ids):
                         raise Warning(_('error!'),
                                              _("No cash statement found for this session. Unable to record returned cash."))
@@ -299,7 +299,6 @@ class pos_order(models.Model):
                     picking_type_obj = self.env['stock.picking.type'].search([
                         ('warehouse_id', '=', warehouse_obj.id), ('code', '=', 'internal')])
                     if picking_type_obj and temp_move_lines:
-                        
                         picking_vals = {
                             'picking_type_id': picking_type_obj.id,
                             'location_id': order.config_id.stock_location_id.id,
@@ -312,8 +311,8 @@ class pos_order(models.Model):
                         if picking_obj:
                             picking_obj.action_confirm()
                             picking_obj.force_assign()
-                            picking_obj.button_validate()
-                            stock_transfer_id = self.env['stock.immediate.transfer'].search([('pick_ids', '=', picking_obj.id)], limit=1)
+                            picking_obj.do_new_transfer()
+                            stock_transfer_id = self.env['stock.immediate.transfer'].search([('pick_id', '=', picking_obj.id)], limit=1)
                             if stock_transfer_id:
                                 stock_transfer_id.process()
                             order.picking_id = picking_obj.id
@@ -372,12 +371,11 @@ class pos_order(models.Model):
                 template_id = self.env['ir.model.data'].get_object_reference('aspl_pos_order_reservation', 'email_template_pos_ereceipt')
                 template_obj = self.env['mail.template'].browse(template_id[1])
                 template_obj.send_mail(self.id,force_send=True, raise_exception=True)
-            except Exception as e:
+            except Exception, e:
                 _logger.error('Unable to send email for order %s', e)
 
     @api.model
     def ac_pos_search_read(self, domain):
-        domain = domain.get('domain')
         search_vals = self.search_read(domain)
         user_id = self.env['res.users'].browse(self._uid)
         tz = False
@@ -401,13 +399,10 @@ class pos_order(models.Model):
                         'date_order':(datetime.strptime(val.get('date_order'), '%Y-%m-%d %H:%M:%S') + timedelta(hours=hour_tz, minutes=min_tz)).strftime('%Y-%m-%d %H:%M:%S')
                     })
                 result.append(val)
+            return result
         else:
-            result = search_vals
-        for res in result:
-            line_dict = self.env['pos.order.line'].browse(res.get('lines'))
-            if line_dict:
-                res['lines'] = line_dict.read()
-        return result
+            return search_vals
+
     @api.model
     def create_from_ui(self, orders):
         # Keep only new orders
@@ -428,7 +423,7 @@ class pos_order(models.Model):
                 to_be_cancelled_items = {}
                 for line in order.get('lines'):
                     if line[2].get('cancel_process'):
-                        if line[2].get('product_id') in to_be_cancelled_items:
+                        if to_be_cancelled_items.has_key(line[2].get('product_id')):
                             to_be_cancelled_items[line[2].get('product_id')] = to_be_cancelled_items[line[2].get('product_id')] + line[2].get('qty')
                         else:
                             to_be_cancelled_items.update({line[2].get('product_id'):line[2].get('qty')})

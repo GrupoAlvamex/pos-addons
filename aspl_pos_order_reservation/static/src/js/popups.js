@@ -2,12 +2,12 @@ odoo.define('aspl_pos_order_reservation.popups', function (require) {
 	"use strict";
 	var gui = require('point_of_sale.gui');
 	var keyboard = require('point_of_sale.keyboard').OnscreenKeyboardWidget;
-	var rpc = require('web.rpc');
+	var Model = require('web.DataModel');
 	var chrome = require('point_of_sale.chrome');
 	var utils = require('web.utils');
 	var PopupWidget = require('point_of_sale.popups');
 	var models = require('point_of_sale.models');
-	var field_utils = require('web.field_utils');
+	var formats = require('web.formats');
 	
 	var core = require('web.core');
 	var QWeb = core.qweb;
@@ -15,6 +15,51 @@ odoo.define('aspl_pos_order_reservation.popups', function (require) {
     var round_di = utils.round_decimals;
 	var _t = core._t;
 	
+	/* Product POPUP */
+	var ProductPopup = PopupWidget.extend({
+	    template: 'ProductPopup',
+	    show: function(options){
+	    	var self = this;
+			this._super();
+			this.product_list = options.product_list || "";
+			this.order_id = options.order_id || "";
+			this.state = options.state || "";
+			this.renderElement();
+			self = this;
+			
+			$(".del_order").click(function(){
+				var result = self.pos.db.get_order_by_id(self.order_id);
+				if(result && result.state == 'draft'){
+					self.gui.show_popup('confirm',{
+		                'title': _t('Delete Order'),
+		                'body': _t("Are you sure you want to delete "+ result.pos_reference +" ?"),
+		                confirm: function(){
+		                	new Model("pos.order").get_func("unlink")(result.id).then(function(){
+		        				$(".reload").click();
+		        				self.gui.close_popup();
+		        			});
+		                },
+		            });
+				}
+			});
+	    },
+	    click_confirm: function(){
+	        if (this.state == "paid" || this.state == "done"){
+                $( "#re_order_duplicate" ).data("id",self.order_id);
+    			$( "#re_order_duplicate" ).trigger("click");
+	        } else if(this.state == "draft") {
+                $( "#re_order" ).data("id",self.order_id);
+                $( "#re_order" ).trigger("click");
+			}
+			this.gui.close_popup();
+	    },
+    	click_cancel: function(){
+    		this.gui.close_popup();
+    	}
+	    
+	});
+	gui.define_popup({name:'product_popup', widget: ProductPopup});
+
 	/* Delivery Date POPUP */
 	var DeliveryDatePopup = PopupWidget.extend({
 	    template: 'DeliveryDatePopup',
@@ -54,20 +99,14 @@ odoo.define('aspl_pos_order_reservation.popups', function (require) {
 				}
             }else {
                 if(order && self.to_be_update_order.delivery_date != $('#delivery_datepicker').val()){
-                	var params = {
-                		model: 'pos.order',
-                		method: 'update_delivery_date',
-                		args: [self.to_be_update_order.id, $('#delivery_datepicker').val()]
-                	}
-                	rpc.query(params, {async: false})
-//        	        new Model('pos.order').call('update_delivery_date',
-//        	            [self.to_be_update_order.id, $('#delivery_datepicker').val()])
-		            .then(function(res){
-		                self.pos.db.add_orders(res);
-		                var temp_orders = self.pos.get('pos_order_list');
-		                $.extend(temp_orders, res);
-		                self.pos.set({ 'pos_order_list' : temp_orders });
-		            });
+        	        new Model('pos.order').call('update_delivery_date',
+        	            [self.to_be_update_order.id, $('#delivery_datepicker').val()])
+        	            .then(function(res){
+        	                self.pos.db.add_orders(res);
+        	                var temp_orders = self.pos.get('pos_order_list');
+        	                $.extend(temp_orders, res);
+        	                self.pos.set({ 'pos_order_list' : temp_orders });
+        	            });
         	    }
         	}
 			this.gui.close_popup();
@@ -141,13 +180,7 @@ odoo.define('aspl_pos_order_reservation.popups', function (require) {
 	        this._super(options);
 	        this.order_tobe_cancel = options.order;
 	        if (this.order_tobe_cancel){
-	        	var params = {
-	        		model: 'pos.order.line',
-	        		method: 'search_read',
-	        		domain: [['id', 'in', _.pluck(this.order_tobe_cancel.lines, 'id')], ['qty', '>', 0]]
-	        	}
-	        	rpc.query(params, {async: false})
-//                new Model('pos.order.line').call('search_read', [[['id', 'in', this.order_tobe_cancel.lines], ['qty', '>', 0]]], {}, {'async': false})
+                new Model('pos.order.line').call('search_read', [[['id', 'in', this.order_tobe_cancel.lines], ['qty', '>', 0]]], {}, {'async': false})
                 .then(function(lines){
                     _.each(lines, function(line){
                         self.line[line.id] = line
@@ -286,8 +319,7 @@ odoo.define('aspl_pos_order_reservation.popups', function (require) {
                 if(unit){
                     qty    = round_pr(qty, unit.rounding);
                     var decimals = self.pos.dp['Product Unit of Measure'];
-                    
-                    new_qty = field_utils.format.float(round_di(qty, decimals), {digits: [69, decimals]});
+                    new_qty = formats.format_value(round_di(qty, decimals), { type: 'float', digits: [69, decimals]});
                     return new_qty + '/' + unit.display_name
                 }
             }
